@@ -19,7 +19,7 @@ $("#add-train-btn").on("click", function(event) {
     // Grabs user input
     var trainName = $("#train-name-input").val().trim();
     var trainDestination = $("#destination-input").val().trim();
-    var trainStart = moment($("#time-input").val().trim(), "13:00", 'HH:mm').format('hh:mm a');
+    var trainStart = moment($("#time-input").val().trim(), "HH:mm").subtract(10, "years").format("X");
     var trainFreq = $("#frequency-input").val().trim();
   
     // Creates local "temporary" object for holding train data
@@ -67,12 +67,20 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
     console.log(trainFreq);
   
     // Prettify the train start
-    var trainStartPretty = moment.unix(trainStart).format("HH:mm");
+    var trainStartPretty = moment.unix(trainStart).format("hh:mm a");
   
     // // Calculate Next Arrival
     // // To calculate the months worked
     // var empMonths = moment().diff(moment.unix(empStart, "X"), "months");
     // console.log(empMonths);
+
+    var diffTime = moment().diff(moment.unix(trainStart), "minutes");
+		var timeRemainder = moment().diff(moment.unix(trainStart), "minutes") % trainFreq ;
+		var minutes = trainFreq - timeRemainder;
+
+		var nextTrainArrival = moment().add(minutes, "m").format("hh:mm A"); 
+
+    // var nextTrainArrival = moment().add(minutes, "m").format("hh:mm A"); 
   
     // // Calculate the minutes away
     // var empBilled = empMonths * empRate;
@@ -80,7 +88,7 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
   
     // Add each train's data into the table
     $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDestination + "</td><td>" +
-    trainStartPretty + "</td><td>" + trainFreq + "</td><td>");
+    trainFreq + "</td><td>" + nextTrainArrival + "</td><td>" + minutes + "</td><td>");
   });
 
   // Example Time Math
